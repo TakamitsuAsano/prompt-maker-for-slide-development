@@ -178,7 +178,8 @@ Bullet Points: (箇条書きで記載する要素)
 
 Script: (プレゼンターが話すための原稿。指定されたVoice/Toneに従うこと)
 
-""" return prompt
+""" 
+    return prompt
 
 --- UI構築 ---
 st.title("📑 資料作成特化型 プロンプトメーカー") st.markdown("""
