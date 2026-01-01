@@ -189,7 +189,7 @@ st.markdown("""
 
 st.divider()
 
-2カラムレイアウト
+# 2カラムレイアウト
 col1, col2 = st.columns([1, 1])
 
 with col1: st.subheader("1. 前提情報の入力")
