@@ -192,9 +192,16 @@ st.divider()
 # 2カラムレイアウト
 col1, col2 = st.columns([1, 1])
 
-with col1: st.subheader("1. 前提情報の入力")
 
-# 目的
+with col1: 
+    # --- STEP 1: 素材の入力 --- 
+    st.subheader("1. 素材の入力") 
+    transcript = st.text_area( "議事録・文字起こし・メモをここにコピペ", height=600, placeholder="ここにGeminiやZoomの文字起こし、または箇条書きのメモを貼り付けてください。\n\n例：\n・今回のプロジェクトの目的は売上20%アップ\n・課題は新規顧客の獲得コスト\n・解決策としてSNS広告の強化を提案したい..." )
+
+with col2: 
+    # --- STEP 2: 前提情報の入力 --- 
+    st.subheader("2. 前提情報の入力")
+
 purpose = st.selectbox(
     "資料の目的",
     ["営業・商談", "社内承認・決裁", "社内提案・企画", "他社への企画提案", "社内報告（進捗・完了）", "社内勉強会・ナレッジ共有", "その他（自分で記述）"]
@@ -202,23 +209,19 @@ purpose = st.selectbox(
 if purpose == "その他（自分で記述）":
     purpose = st.text_input("具体的な目的を入力してください")
 
-# ターゲット・自分
 target = st.text_input("プレゼンの対象者（例：経営企画部 部長、新規クライアント担当者）", placeholder="省略可")
 presenter = st.text_input("自分の所属・名前（タイトルスライド用）", placeholder="省略可")
 
-st.subheader("2. トンマナの選択")
+st.divider()
+
+# --- STEP 3: トンマナの選択 ---
+st.subheader("3. トンマナの選択")
 style_key = st.radio(
     "作りたい資料の雰囲気に近いものを選んでください",
     list(STYLES.keys()),
     index=0
 )
-
-# 選択されたスタイルの説明表示
 st.info(f"**{style_key}**\n\n{STYLES[style_key]['desc']}")
-with col2: 
-    st.subheader("3. 素材の入力") 
-    transcript = st.text_area( "議事録・文字起こし・メモをここにコピペ", height=450, placeholder="ここにGeminiやZoomの文字起こし、または箇条書きのメモを貼り付けてください。\n\n例：\n・今回のプロジェクトの目的は売上20%アップ\n・課題は新規顧客の獲得コスト\n・解決策としてSNS広告の強化を提案したい..." )
-
 st.divider()
 
 # 生成ボタン
