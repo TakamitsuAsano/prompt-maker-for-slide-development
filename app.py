@@ -215,7 +215,9 @@ style_key = st.radio(
 
 # 選択されたスタイルの説明表示
 st.info(f"**{style_key}**\n\n{STYLES[style_key]['desc']}")
-with col2: st.subheader("3. 素材の入力") transcript = st.text_area( "議事録・文字起こし・メモをここにコピペ", height=450, placeholder="ここにGeminiやZoomの文字起こし、または箇条書きのメモを貼り付けてください。\n\n例：\n・今回のプロジェクトの目的は売上20%アップ\n・課題は新規顧客の獲得コスト\n・解決策としてSNS広告の強化を提案したい..." )
+with col2: 
+    st.subheader("3. 素材の入力") 
+    transcript = st.text_area( "議事録・文字起こし・メモをここにコピペ", height=450, placeholder="ここにGeminiやZoomの文字起こし、または箇条書きのメモを貼り付けてください。\n\n例：\n・今回のプロジェクトの目的は売上20%アップ\n・課題は新規顧客の獲得コスト\n・解決策としてSNS広告の強化を提案したい..." )
 
 st.divider()
 
