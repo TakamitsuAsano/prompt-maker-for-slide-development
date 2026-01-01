@@ -1,17 +1,17 @@
 import streamlit as st
 
-# ページ設定
+# --- ページ設定 ---
 st.set_page_config(
-    page_title="プレゼン資料構成生成メーカー",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    page_title="NotebookLM専用 資料構成プロンプトメーカー",
+    page_icon="📘",
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
 
 # --- 定数・辞書定義（トンマナデータ） ---
 STYLES = {
     "1. Strategic & Logical（戦略・コンサルティング）": {
-        "desc": "経営層への報告、戦略提案、信頼感と論理性を重視。",
+        "desc": "経営層への報告、戦略提案。信頼感と論理性を重視。",
         "keywords": "信頼、知性、断定的、ロジカル、PREP法",
         "yaml_params": {
             "Visual Mood": {
@@ -27,7 +27,7 @@ STYLES = {
         }
     },
     "2. Visionary & Minimal（ビジョナリー・ピッチ）": {
-        "desc": "投資家向けピッチ、新製品発表。感情と未来を想起させる。",
+        "desc": "投資家向けピッチ、新製品発表。感情と未来を重視。",
         "keywords": "情熱、未来、シンプル、ストーリーテリング",
         "yaml_params": {
             "Visual Mood": {
@@ -111,96 +111,89 @@ STYLES = {
 # --- 関数定義 ---
 
 def generate_yaml_text(style_name, target, yaml_params):
-    """YAML形式のテキストを生成する"""
+    """YAML形式のテキストを生成する（改行を明示）"""
     visual = yaml_params["Visual Mood"]
     text = yaml_params["Text Tone"]
     
-    yaml_text = f"""## トンマナ設定 (Style Parameter)
-- **Style Title:** {style_name}
-- **Target Audience:** {target if target else "指定なし（文脈から判断）"}
-- **Visual Mood:**
-  - Base Color: {visual['Base Color']}
-  - Vibe: {visual['Vibe']}
-  - Density: {visual['Density']}
-- **Text Tone:**
-  - Voice: {text['Voice']}
-  - Structure: {text['Structure']}
-  - Keywords: {text['Keywords']}
-"""
-    return yaml_text
+    # 改行コード \n を明示的に使用してフォーマット崩れを防ぐ
+    return (
+        f"## トンマナ設定 (Style Parameter)\n"
+        f"- **Style Title:** {style_name}\n"
+        f"- **Target Audience:** {target if target else '指定なし（文脈から判断）'}\n"
+        f"- **Visual Mood:**\n"
+        f"  - Base Color: {visual['Base Color']}\n"
+        f"  - Vibe: {visual['Vibe']}\n"
+        f"  - Density: {visual['Density']}\n"
+        f"- **Text Tone:**\n"
+        f"  - Voice: {text['Voice']}\n"
+        f"  - Structure: {text['Structure']}\n"
+        f"  - Keywords: {text['Keywords']}\n"
+    )
 
-def create_prompt(transcript, purpose, target, presenter, style_name, style_data):
-    """最終的なプロンプトを作成する"""
+def create_prompt(purpose, target, presenter, style_name, style_data):
+    """最終的なプロンプトを作成する（議事録はここには含めない）"""
     
     yaml_section = generate_yaml_text(style_name, target, style_data["yaml_params"])
+    presenter_info = f"- **Presenter:** {presenter}\n" if presenter else ""
     
-    presenter_info = f"- **Presenter:** {presenter}" if presenter else ""
-    
-    prompt = f"""
-# プレゼン資料作成依頼
-
-あなたはプロフェッショナルなプレゼンテーション資料作成のコンサルタントです。
-以下の「インプット情報（議事録・メモ）」と「要件定義（トンマナ）」に基づいて、
-スライド構成案（アウトライン）と、各スライドの具体的なスクリプト（原稿）を作成してください。
-
----
-
-## 1. プレゼンの前提情報
-- **Purpose (目的):** {purpose}
-{presenter_info}
-
-{yaml_section}
-
----
-
-## 2. インプット情報（議事録・メモ）
-以下のテキスト内容を情報のソースとして使用してください。
-不足している情報は、トンマナに合わせて適切なプレースホルダー（[ここにXXのデータを入れる]等）を設置してください。
-
-```text
-{transcript}
-3. 出力形式（Output Format）
-Markdown形式で以下の構造で出力してください。
-
-タイトルスライド案（キャッチーなタイトルとサブタイトル）
-
-スライド構成案（スライド枚数は内容に応じて適切に調整）
-
-各スライドについて以下を記述:
-
-Slide X: [スライドタイトル]
-
-Visualイメージ: (指定されたVisual Moodに基づき、どんな図解や画像を配置すべきか具体的に指示)
-
-Main Message: (このスライドで伝えたい唯一のメッセージ)
-
-Bullet Points: (箇条書きで記載する要素)
-
-Script: (プレゼンターが話すための原稿。指定されたVoice/Toneに従うこと)
-
-""" 
+    # NotebookLMのチャット欄に入力するための指示プロンプト
+    prompt = (
+        f"# プレゼン資料作成依頼\n\n"
+        f"あなたはプロフェッショナルなプレゼンテーション資料作成のコンサルタントです。\n"
+        f"**読み込ませた「ソース（議事録・メモ）」**と、以下の「要件定義（トンマナ）」に基づいて、\n"
+        f"スライド構成案（アウトライン）と、各スライドの具体的なスクリプト（原稿）を作成してください。\n\n"
+        f"---\n\n"
+        f"## 1. プレゼンの前提情報\n"
+        f"- **Purpose (目的):** {purpose}\n"
+        f"{presenter_info}\n"
+        f"{yaml_section}\n"
+        f"---\n\n"
+        f"## 2. 出力形式（Output Format）\n"
+        f"Markdown形式で以下の構造で出力してください。\n\n"
+        f"1. **タイトルスライド案**（キャッチーなタイトルとサブタイトル）\n"
+        f"2. **スライド構成案**（スライド枚数は内容に応じて適切に調整）\n"
+        f"   - 各スライドについて以下を記述:\n"
+        f"     - **Slide X: [スライドタイトル]**\n"
+        f"     - **Visualイメージ:** (指定されたVisual Moodに基づき、どんな図解や画像を配置すべきか具体的に指示)\n"
+        f"     - **Main Message:** (このスライドで伝えたい唯一のメッセージ)\n"
+        f"     - **Bullet Points:** (箇条書きで記載する要素。ソースの内容を反映すること)\n"
+        f"     - **Script:** (プレゼンターが話すための原稿。指定されたVoice/Toneに従うこと)\n"
+    )
     return prompt
 
 # --- UI構築 ---
 
-st.title("📑 資料作成特化型 プロンプトメーカー")
+st.title("📘 NotebookLM専用 資料構成プロンプトメーカー")
 st.markdown("""
-> 「どんな資料を作成して良いのかわからん」を解決します。
-> 議事録を貼って、トンマナを選ぶだけ。あとはAI（Gemini, ChatGPT, NotebookLM）がやってくれます。
+議事録やメモから、プレゼン資料の構成案を一瞬で作成するためのアプリです。
+**NotebookLM** に情報を読み込ませ、このアプリで作った「指示書（プロンプト）」を渡すだけで完了します。
 """)
+
+# 手順の概要を表示
+with st.expander("使い方（全体の流れ）", expanded=True):
+    st.markdown("""
+    1. **【Step 1】** このアプリに議事録を入力し、**コピーしてNotebookLMの「ソース」に追加**します。
+    2. **【Step 2, 3】** 資料の目的や雰囲気を設定します。
+    3. **【Generate】** 生成されたプロンプトを**NotebookLMの「チャット」に送信**します。
+    """)
 
 st.divider()
 
 # --- STEP 1: 素材の入力 ---
-st.header("Step 1. 素材の入力")
-st.caption("議事録、メモ、Zoomの文字起こしなどを貼り付けてください。")
+st.header("Step 1. 素材（議事録）の準備")
+st.info("まずは、資料の元となるテキスト（議事録、メモ、文字起こし）をここに貼り付けて整理します。")
 
 transcript = st.text_area(
-    "インプット情報",
-    height=400,
-    label_visibility="collapsed",
-    placeholder="ここにGeminiやZoomの文字起こし、または箇条書きのメモを貼り付けてください。\n\n例：\n・今回のプロジェクトの目的は売上20%アップ\n・課題は新規顧客の獲得コスト\n・解決策としてSNS広告の強化を提案したい..."
+    "議事録・メモ入力エリア",
+    height=300,
+    placeholder="ここにGeminiやZoomの文字起こし、または箇条書きのメモを貼り付けてください。\n\n（ここに入力した内容は、次のステップでNotebookLMのソースとして使います）"
 )
+
+# 素材コピー用の案内
+if transcript:
+    st.markdown("👇 **以下の手順を実行してください**")
+    st.warning("1. 上記のテキストを全選択してコピーしてください。\n2. NotebookLMを開き、左上の「＋」→「テキストをコピーして貼り付け」でソースとして追加してください。")
+    st.markdown("[📘 NotebookLM を開く](https://notebooklm.google/)")
 
 st.divider()
 
@@ -208,7 +201,6 @@ st.divider()
 st.header("Step 2. 前提情報の入力")
 st.caption("誰に向けて、何のために話すのかを設定します。")
 
-# 入力項目を見やすく並べる
 col_p1, col_p2 = st.columns(2)
 
 with col_p1:
@@ -223,8 +215,6 @@ with col_p2:
     target = st.text_input("プレゼンの対象者", placeholder="例：経営企画部 部長、クライアント担当者（省略可）")
     presenter = st.text_input("自分の所属・名前", placeholder="タイトルスライド用（省略可）")
 
-st.divider()
-
 # --- STEP 3: トンマナの選択 ---
 st.header("Step 3. トンマナの選択")
 st.caption("資料の「デザイン」と「文章の雰囲気」を決定します。")
@@ -236,53 +226,35 @@ style_key = st.radio(
     horizontal=False
 )
 
-# 選択されたスタイルの詳細を表示
 st.info(f"**選択中: {style_key}**\n\n{STYLES[style_key]['desc']}")
 
 st.divider()
 
 # 生成ボタン
-if st.button("プロンプトを生成する 🚀", type="primary", use_container_width=True):
+if st.button("指示プロンプトを生成する 🚀", type="primary", use_container_width=True):
     if not transcript:
-        st.warning("⚠️ Step 1 で素材となるテキストを入力してください。")
+        st.error("⚠️ Step 1 で素材となるテキストを入力してください（NotebookLMにソースとして入れるためです）。")
     else:
-        # プロンプト生成処理
+        # プロンプト生成
         generated_prompt = create_prompt(
-            transcript=transcript,
             purpose=purpose,
             target=target,
             presenter=presenter,
             style_name=style_key,
             style_data=STYLES[style_key]
         )
-
-        st.success("✅ プロンプトを生成しました！以下のコードをコピーしてAIツールで使用してください。")
-
-        # タブでツールごとの使い方を分ける
-        tab1, tab2, tab3 = st.tabs(["NotebookLM", "Gemini 1.5 / Canvas", "ChatGPT / Claude"])
-
-        with tab1:
-            st.markdown("### 📘 NotebookLMでの使い方")
-            st.markdown("""
-            1. [NotebookLM](https://notebooklm.google/) を開く。
-            2. 左側の「ソースを追加」から、「テキストをコピーして貼り付け」を選び、**議事録（素材）のみ** を貼り付けるか、議事録ファイルをアップロードする。
-            3. 以下のプロンプトをチャットボックスに貼り付けて送信する。
-            *(※NotebookLMはソースを参照する力が強いため、議事録はソースとして読ませるのがベストです)*
-            """)
-            st.code(generated_prompt, language="markdown")
-
-        with tab2:
-            st.markdown("### 💎 Gemini (Advanced/Canvas) での使い方")
-            st.markdown("""
-            1. [Gemini](https://gemini.google.com/) を開く（Canvas機能推奨）。
-            2. 以下のプロンプトをそのまま貼り付けて送信する。
-            """)
-            st.code(generated_prompt, language="markdown")
-            
-        with tab3:
-            st.markdown("### 🤖 ChatGPT / Claude での使い方")
-            st.markdown("""
-            1. ChatGPT または Claude のチャット欄を開く。
-            2. 以下のプロンプトをそのまま貼り付けて送信する。
-            """)
-            st.code(generated_prompt, language="markdown")
+        
+        st.divider()
+        st.subheader("✅ 生成完了！")
+        st.success("以下の手順でNotebookLMに入力してください")
+        
+        st.markdown("#### 手順①：ソースの確認")
+        st.markdown("Step 1で入力した議事録が、NotebookLMの「ソース」に追加されていることを確認してください。")
+        
+        st.markdown("#### 手順②：チャットへの送信")
+        st.markdown("以下のプロンプトをコピーして、**NotebookLMのチャットボックス**に貼り付けて送信してください。")
+        
+        # プロンプト表示（コピーボタン付き）
+        st.code(generated_prompt, language="markdown")
+        
+        st.caption("※このプロンプトは、あなたが追加したソース（議事録）を参照して資料を作るように指示します。")
