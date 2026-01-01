@@ -182,7 +182,8 @@ Script: (プレゼンターが話すための原稿。指定されたVoice/Tone�
     return prompt
 
 # --- UI構築 ---
-st.title("📑 資料作成特化型 プロンプトメーカー") st.markdown("""
+st.title("📑 資料作成特化型 プロンプトメーカー") 
+st.markdown("""
 
 「どんな資料を作成して良いのかわからん」を解決します。 議事録を貼って、トンマナを選ぶだけ。あとはAI（Gemini, ChatGPT, NotebookLM）がやってくれます。 """)
 
