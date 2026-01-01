@@ -221,36 +221,48 @@ with col2:
 
 st.divider()
 
-生成ボタン
-if st.button("プロンプトを生成する 🚀", type="primary", use_container_width=True): if not transcript: st.warning("素材となるテキスト（議事録など）を入力してください。") else: # プロンプト生成処理 generated_prompt = create_prompt( transcript=transcript, purpose=purpose, target=target, presenter=presenter, style_name=style_key, style_data=STYLES[style_key] )
+# 生成ボタン
+if st.button("プロンプトを生成する 🚀", type="primary", use_container_width=True):
+    if not transcript:
+        st.warning("素材となるテキスト（議事録など）を入力してください。")
+    else:
+        # プロンプト生成処理
+        generated_prompt = create_prompt(
+            transcript=transcript,
+            purpose=purpose,
+            target=target,
+            presenter=presenter,
+            style_name=style_key,
+            style_data=STYLES[style_key]
+        )
 
-    st.success("プロンプトを生成しました！以下のコードをコピーしてAIツールで使用してください。")
+        st.success("プロンプトを生成しました！以下のコードをコピーしてAIツールで使用してください。")
 
-    # タブでツールごとの使い方を分ける
-    tab1, tab2, tab3 = st.tabs(["NotebookLM", "Gemini 1.5 / Canvas", "ChatGPT / Claude"])
+        # タブでツールごとの使い方を分ける
+        tab1, tab2, tab3 = st.tabs(["NotebookLM", "Gemini 1.5 / Canvas", "ChatGPT / Claude"])
 
-    with tab1:
-        st.markdown("### 📘 NotebookLMでの使い方")
-        st.markdown("""
-        1. [NotebookLM](https://notebooklm.google/) を開く。
-        2. 左側の「ソースを追加」から、「テキストをコピーして貼り付け」を選び、**議事録（素材）のみ** を貼り付けるか、議事録ファイルをアップロードする。
-        3. 以下のプロンプトをチャットボックスに貼り付けて送信する。
-        *(※NotebookLMはソースを参照する力が強いため、議事録はソースとして読ませるのがベストです)*
-        """)
-        st.code(generated_prompt, language="markdown")
+        with tab1:
+            st.markdown("### 📘 NotebookLMでの使い方")
+            st.markdown("""
+            1. [NotebookLM](https://notebooklm.google/) を開く。
+            2. 左側の「ソースを追加」から、「テキストをコピーして貼り付け」を選び、**議事録（素材）のみ** を貼り付けるか、議事録ファイルをアップロードする。
+            3. 以下のプロンプトをチャットボックスに貼り付けて送信する。
+            *(※NotebookLMはソースを参照する力が強いため、議事録はソースとして読ませるのがベストです)*
+            """)
+            st.code(generated_prompt, language="markdown")
 
-    with tab2:
-        st.markdown("### 💎 Gemini (Advanced/Canvas) での使い方")
-        st.markdown("""
-        1. [Gemini](https://gemini.google.com/) を開く（Canvas機能推奨）。
-        2. 以下のプロンプトをそのまま貼り付けて送信する。
-        """)
-        st.code(generated_prompt, language="markdown")
-        
-    with tab3:
-        st.markdown("### 🤖 ChatGPT / Claude での使い方")
-        st.markdown("""
-        1. ChatGPT または Claude のチャット欄を開く。
-        2. 以下のプロンプトをそのまま貼り付けて送信する。
-        """)
-        st.code(generated_prompt, language="markdown")
+        with tab2:
+            st.markdown("### 💎 Gemini (Advanced/Canvas) での使い方")
+            st.markdown("""
+            1. [Gemini](https://gemini.google.com/) を開く（Canvas機能推奨）。
+            2. 以下のプロンプトをそのまま貼り付けて送信する。
+            """)
+            st.code(generated_prompt, language="markdown")
+            
+        with tab3:
+            st.markdown("### 🤖 ChatGPT / Claude での使い方")
+            st.markdown("""
+            1. ChatGPT または Claude のチャット欄を開く。
+            2. 以下のプロンプトをそのまま貼り付けて送信する。
+            """)
+            st.code(generated_prompt, language="markdown")
