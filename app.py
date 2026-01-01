@@ -191,7 +191,8 @@ st.divider()
 
 # --- STEP 1: 素材の入力 ---
 st.header("Step 1. 素材の入力") 
-st.caption("議事録、メモ、Zoomの文字起こしなどを貼り付けてください。") transcript = st.text_area( "インプット情報", height=400, label_visibility="collapsed", placeholder="ここにGeminiやZoomの文字起こし、または箇条書きのメモを貼り付けてください。\n\n例：\n・今回のプロジェクトの目的は売上20%アップ\n・課題は新規顧客の獲得コスト\n・解決策としてSNS広告の強化を提案したい..." )
+st.caption("議事録、メモ、Zoomの文字起こしなどを貼り付けてください。") 
+transcript = st.text_area( "インプット情報", height=400, label_visibility="collapsed", placeholder="ここにGeminiやZoomの文字起こし、または箇条書きのメモを貼り付けてください。\n\n例：\n・今回のプロジェクトの目的は売上20%アップ\n・課題は新規顧客の獲得コスト\n・解決策としてSNS広告の強化を提案したい..." )
 
 st.divider()
 
