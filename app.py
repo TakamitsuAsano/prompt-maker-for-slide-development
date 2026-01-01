@@ -182,45 +182,69 @@ Script: (プレゼンターが話すための原稿。指定されたVoice/Tone�
     return prompt
 
 # --- UI構築 ---
-st.title("📑 資料作成特化型 プロンプトメーカー") 
-st.markdown("""
 
-「どんな資料を作成して良いのかわからん」を解決します。 議事録を貼って、トンマナを選ぶだけ。あとはAI（Gemini, ChatGPT, NotebookLM）がやってくれます。 """)
+st.title("📑 資料作成特化型 プロンプトメーカー")
+st.markdown("""
+> 「どんな資料を作成して良いのかわからん」を解決します。
+> 議事録を貼って、トンマナを選ぶだけ。あとはAI（Gemini, ChatGPT, NotebookLM）がやってくれます。
+""")
 
 st.divider()
 
 # --- STEP 1: 素材の入力 ---
-st.header("Step 1. 素材の入力") 
-st.caption("議事録、メモ、Zoomの文字起こしなどを貼り付けてください。") 
-transcript = st.text_area( "インプット情報", height=400, label_visibility="collapsed", placeholder="ここにGeminiやZoomの文字起こし、または箇条書きのメモを貼り付けてください。\n\n例：\n・今回のプロジェクトの目的は売上20%アップ\n・課題は新規顧客の獲得コスト\n・解決策としてSNS広告の強化を提案したい..." )
+st.header("Step 1. 素材の入力")
+st.caption("議事録、メモ、Zoomの文字起こしなどを貼り付けてください。")
+
+transcript = st.text_area(
+    "インプット情報",
+    height=400,
+    label_visibility="collapsed",
+    placeholder="ここにGeminiやZoomの文字起こし、または箇条書きのメモを貼り付けてください。\n\n例：\n・今回のプロジェクトの目的は売上20%アップ\n・課題は新規顧客の獲得コスト\n・解決策としてSNS広告の強化を提案したい..."
+)
 
 st.divider()
 
 # --- STEP 2: 前提情報の入力 ---
-st.header("Step 2. 前提情報の入力") 
+st.header("Step 2. 前提情報の入力")
 st.caption("誰に向けて、何のために話すのかを設定します。")
 
-入力項目を見やすく並べる
-col_p1, col_p2 = st.columns(2) with col_p1: purpose = st.selectbox( "資料の目的", ["営業・商談", "社内承認・決裁", "社内提案・企画", "他社への企画提案", "社内報告（進捗・完了）", "社内勉強会・ナレッジ共有", "その他（自分で記述）"] ) if purpose == "その他（自分で記述）": purpose = st.text_input("具体的な目的を入力してください")
+# 入力項目を見やすく並べる
+col_p1, col_p2 = st.columns(2)
 
-with col_p2: target = st.text_input("プレゼンの対象者", placeholder="例：経営企画部 部長、クライアント担当者（省略可）") presenter = st.text_input("自分の所属・名前", placeholder="タイトルスライド用（省略可）")
+with col_p1:
+    purpose = st.selectbox(
+        "資料の目的",
+        ["営業・商談", "社内承認・決裁", "社内提案・企画", "他社への企画提案", "社内報告（進捗・完了）", "社内勉強会・ナレッジ共有", "その他（自分で記述）"]
+    )
+    if purpose == "その他（自分で記述）":
+        purpose = st.text_input("具体的な目的を入力してください")
+
+with col_p2:
+    target = st.text_input("プレゼンの対象者", placeholder="例：経営企画部 部長、クライアント担当者（省略可）")
+    presenter = st.text_input("自分の所属・名前", placeholder="タイトルスライド用（省略可）")
 
 st.divider()
 
---- STEP 3: トンマナの選択 ---
-st.header("Step 3. トンマナの選択") st.caption("資料の「デザイン」と「文章の雰囲気」を決定します。")
+# --- STEP 3: トンマナの選択 ---
+st.header("Step 3. トンマナの選択")
+st.caption("資料の「デザイン」と「文章の雰囲気」を決定します。")
 
-style_key = st.radio( "雰囲気を選択", list(STYLES.keys()), index=0, horizontal=False # 縦並びで見やすく )
+style_key = st.radio(
+    "雰囲気を選択",
+    list(STYLES.keys()),
+    index=0,
+    horizontal=False
+)
 
-選択されたスタイルの詳細を表示
-st.info(f"選択中: {style_key}\n\n{STYLES[style_key]['desc']}")
+# 選択されたスタイルの詳細を表示
+st.info(f"**選択中: {style_key}**\n\n{STYLES[style_key]['desc']}")
 
 st.divider()
 
 # 生成ボタン
 if st.button("プロンプトを生成する 🚀", type="primary", use_container_width=True):
     if not transcript:
-        st.warning("素材となるテキスト（議事録など）を入力してください。")
+        st.warning("⚠️ Step 1 で素材となるテキストを入力してください。")
     else:
         # プロンプト生成処理
         generated_prompt = create_prompt(
@@ -232,7 +256,7 @@ if st.button("プロンプトを生成する 🚀", type="primary", use_containe
             style_data=STYLES[style_key]
         )
 
-        st.success("プロンプトを生成しました！以下のコードをコピーしてAIツールで使用してください。")
+        st.success("✅ プロンプトを生成しました！以下のコードをコピーしてAIツールで使用してください。")
 
         # タブでツールごとの使い方を分ける
         tab1, tab2, tab3 = st.tabs(["NotebookLM", "Gemini 1.5 / Canvas", "ChatGPT / Claude"])
